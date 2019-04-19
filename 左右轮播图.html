@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			div{
+				width: 800px;
+				height: 400px;
+				overflow: hidden;
+				position: relative;
+			}
+			.list{
+				width: 4800px;
+				height: 400px;
+				list-style:none;
+				position: absolute;
+				
+				left: 0;
+			}
+			.item{
+				font-size: 50px;
+				width: 800px;
+				height: 400px;
+				
+				float: left;			
+			}
+			.item:nth-child(1){
+				background-color: green;
+				
+			}
+			.item:nth-child(2){
+				background-color: blueviolet;
+			}
+			.item:nth-child(3){
+				background-color: aquamarine;
+			}
+			.item:nth-child(4){
+				background-color: darkgray;
+			}
+			.item:nth-child(5){
+				background-color: sandybrown;
+			}
+			.item:nth-child(6){
+				background-color: green;
+				
+			}
+			.btn{
+				width: 50px;
+				height: 200px;
+				position: absolute;
+				left: 0px;
+				top: 100px;
+				z-index: 100;
+			}
+			.btn2{
+				left: 750px;
+			}
+			.item.active{
+				z-index: 10;
+			}
+			
+			.yuan{
+				list-style: none;
+				position: absolute;
+				display: flex;
+				top: 380px;
+				left: 500px;
+				z-index: 100;
+			}
+			.yuan li{
+				width: 20px;
+				height: 20px;
+				background-color: white;
+				border-radius: 50%;
+				margin-left: 20px;
+				cursor: pointer;
+			}
+			.yuan li.active{
+				background-color: gray;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="warp">
+			<ul class="list">
+				<li class="item active">1</li>
+				<li class="item">2</li>
+				<li class="item">3</li>
+				<li class="item">4</li>
+				<li class="item">5</li>
+				
+				<li class="item">1</li><!--第六张-->
+				
+			</ul>
+			<button class="btn btn1" id="gopre" style="display: none;"><</button>
+			<button class="btn btn2" id="gonext" style="display: none;">></button>
+			
+			<ol class="yuan">
+				<li class="active" data-index="0"></li>
+				<li data-index="1"></li>
+				<li data-index="2"></li>
+				<li data-index="3"></li>
+				<li data-index="4"></li>
+			</ol>
+		</div>
+		
+		<script>
+			var divs=document.querySelector("div");
+			var ul=document.querySelector("ul");
+			var li=document.querySelector("li");
+			var active=document.querySelector("li active");
+			var ulWidth=li.offsetWidth;//盒子宽度
+			var list=document.getElementsByClassName("list");
+			var items=document.getElementsByClassName("item");
+			
+			var btna=document.getElementById("gopre");
+			var btnb=document.getElementById("gonext");
+			
+			var goprebtn=document.getElementById("gopre");//后
+			var gonextbtn=document.getElementById("gonext");//前
+			
+			var points=document.querySelector("ol").children;//按钮
+			var index=0;
+			
+			//清除
+			var clearactive=function(){
+				for (var i=0;i<items.length;i++) {
+					items[i].className="item";
+				}
+				for(var i=0;i<points.length;i++){
+					points[i].className="point";
+				}
+			}
+			//向item上加上active
+			var goindex=function(){
+				clearactive();
+				items[index].className="item active";
+				
+				if(index==items.length-1){
+				points.className="";
+				points[0].className="point active";
+				}else{
+					points[index].className="point active";
+				}
+			}
+			  //下一张                  
+            gonextbtn.onclick=function(){
+            	         	
+				//ul.style.left=-index*ulWidth+"px";
+				if(index==items.length-1){
+					index=0;					
+					ul.style.left=0+"px";					
+				};
+				index++;
+				goindex();				
+				animate(ul, -index * ulWidth);
+								
+			}
+            //上一张
+            goprebtn.onclick=function(){
+            	if(index==0){
+            		index=5;
+            		ul.style.left=-index*ulWidth+"px";
+            	}
+            	index--;
+            	goindex();
+            	animate(ul, -index * ulWidth);
+            }
+            
+            //按钮
+            for (var i=0;i<points.length;i++) {
+            	points[i].addEventListener('click',function(){
+					var pointindex=this.getAttribute("data-index");
+					index=pointindex;
+					goindex();
+					animate(ul, -index * ulWidth);
+					clearInterval(timer);
+				})
+            	
+            }
+            
+           
+            //自动
+            function autoplay(){
+				timer=setInterval(function(){
+					gonextbtn.onclick();
+				},2000);
+			}
+			autoplay();
+			
+			//鼠标移入
+			divs.onmouseover=function(){
+				//btn.style.display="block";
+				clearInterval(timer);
+				btna.style.display="block";
+				btnb.style.display="block";
+			}
+			//鼠标移出
+			divs.onmouseleave=function(){
+				//btn.style.display="none";
+				autoplay();
+				btna.style.display="none";
+				btnb.style.display="none";
+			};
+            
+            
+            //移动
+    function animate(element, target) {
+    clearInterval(element.timeId);
+    //定时器的id值存储到对象的一个属性中
+    element.timeId = setInterval(function () {
+      //获取元素的当前的位置,数字类型
+      var current = element.offsetLeft;
+      //每次移动的距离
+      var step = 10;
+      step = current < target ? step : -step;
+      //当前移动到位置
+      current += step;
+      if (Math.abs(current - target) > Math.abs(step)) {
+        element.style.left = current + "px";
+      } else {
+        //清理定时器
+        clearInterval(element.timeId);
+        //直接到达目标
+        element.style.left = target + "px";
+      }
+    }, 10);
+  }
+		</script>
+	</body>
+</html>
